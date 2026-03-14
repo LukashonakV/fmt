@@ -1040,16 +1040,16 @@ TEST(chrono_test, zoned_time) {
     {"Europe/London", {"GMT", "+0000"}},
     {"Europe/Paris", {"CET", "+0100"}},
     {"Pacific/Auckland", {"NZDT", "+1300"}}};
+   std::string fmt_zone{}, fmt_offset{};
    for (const auto& entry : map_to_test) {
      const std::chrono::zoned_time entry_to_test{std::chrono::locate_zone(entry.first),
      std::chrono::system_clock::now()};
-     EXPECT_EQ(fmt::format("{:%Z}", entry_to_test), entry.second.first);
-     if (::testing::Test::HasFailure())
-       EXPECT_EQ(fmt::format("{:%Z}", entry_to_test), "UTC");
-
-     EXPECT_EQ(fmt::format("{:%z}", entry_to_test), entry.second.second);
-     if (::testing::Test::HasFailure())
-       EXPECT_EQ(fmt::format("{:%Z}", entry_to_test), "+0000");
+     fmt_zone = fmt::format("{:%Z}", entry_to_test);
+     fmt_offset = fmt::format("{:%z}", entry_to_test);
+     // Accept either the expected zone abbreviation or "UTC" as fallback on Windows
+     EXPECT_TRUE(fmt_zone == entry.second.first || fmt_zone == "UTC");
+     // Accept either expected offset or "+0000" as fallback
+     EXPECT_TRUE(fmt_offset == entry.second.second || fmt_offset == "+0000");
     }
 }
 #endif
